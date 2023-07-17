@@ -8,7 +8,7 @@ list_of_admins.add(get_list_of_admins)
 
 def get_list_of_all_admin(admin, curr_page, all_admins):
     kb = types.InlineKeyboardMarkup()
-    closemsg = types.InlineKeyboardButton(text="Скрыть", callback_data="back_to_main_menu")
+    closemsg = types.InlineKeyboardButton(text="Назад", callback_data="back_to_main_menu")
     deletebtn = types.InlineKeyboardButton(text="Удалить", callback_data=f"confirm_delete_admin:{admin.id}")
     backbtn = types.InlineKeyboardButton(text="⬅️", callback_data="prev_post")
     counter_text = types.InlineKeyboardButton(text=f"{str(curr_page + 1)}/{str(len(all_admins))}", callback_data='_')

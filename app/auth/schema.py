@@ -15,7 +15,7 @@ class AdminCreateSchema(BaseModel):
     last_name: Optional[str]
     phone_number: Optional[str]
     channel_id: Optional[int]
-    is_superuser: bool
+    is_superuser: bool = False
     
     class Config:
         orm_mode = True
@@ -34,7 +34,7 @@ class AdminSchema(BaseModel):
 
     class Config:
         orm_mode = True
-        
+
 class TokenSchema(BaseModel):
     access_token: str
     token_type: str

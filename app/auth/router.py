@@ -21,7 +21,7 @@ async def register(background_tasks: BackgroundTasks,admin: AdminCreateSchema, c
         raise HTTPException(status_code=403, detail="Недостаточно прав доступа.")
 
     hashed_password = pwd_context.hash(admin.password)
-    db_user = models.Admin(
+    db_admin = models.Admin(
         tg_id=admin.tg_id,
         email=admin.email,
         username=admin.username,
@@ -31,34 +31,41 @@ async def register(background_tasks: BackgroundTasks,admin: AdminCreateSchema, c
         channel_id=admin.channel_id,
         is_superuser=admin.is_superuser,
     )
-    db_user.password = hashed_password
+    db_admin.password = hashed_password
     try:
-        db.add(db_user)
+        db.add(db_admin)
         db.commit()
-        db.refresh(db_user)
+        db.refresh(db_admin)
     except IntegrityError:
         raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует.")
 
     async def send_message_task():
+        if not isinstance(db_admin.created_at, datetime):
+            db_admin.created_at = datetime.fromisoformat(db_admin.created_at)
+
+        # Форматирование объекта datetime в нужный формат
+        formatted_date = db_admin.created_at.strftime("%d %B %Y %H:%M")
         message_text = (
             "Добавлен новый Админ\n\n"
-            f'ID tg: {db_user.tg_id}\n'
-            f'email: {db_user.email}\n'
-            f'username: @{db_user.username}\n'
-            f'Имя: {db_user.first_name}\n'
-            f'Фамилия: {db_user.last_name}\n'
-            f'Номер телефона: {db_user.phone_number}\n'
-            f'ID канала: {db_user.channel_id}'
+            f'Номер Админа: {db_admin.id}\n'
+            f'ID tg: {db_admin.tg_id}\n'
+            f'email: {db_admin.email}\n'
+            f'username: @{db_admin.username}\n'
+            f'Имя: {db_admin.first_name}\n'
+            f'Фамилия: {db_admin.last_name}\n'
+            f'Номер телефона: {db_admin.phone_number}\n'
+            f'ID канала: {db_admin.channel_id}\n'
+            f"Дата создания: {formatted_date}"
         )
         buttons_new_admin = types.InlineKeyboardMarkup()
-        delete_button = types.InlineKeyboardButton("Удалить", callback_data=f"delete_admin:{db_user.id}")
+        delete_button = types.InlineKeyboardButton("Удалить", callback_data=f"delete_created_admin:{db_admin.id}")
         close_msg_button = types.InlineKeyboardButton("Скрыть", callback_data=f"close_msg")
         buttons_new_admin.add(delete_button).add(close_msg_button)
         await bot.send_message(chat_id=current_user.tg_id, text=message_text, reply_markup=buttons_new_admin)
 
     background_tasks.add_task(send_message_task)
 
-    return db_user
+    return db_admin
 
 @router.post("/login", response_model=TokenSchema)
 async def login(
