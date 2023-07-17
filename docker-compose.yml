@@ -12,9 +12,9 @@ services:
       - db  # Indic
   aiogram:
     build: .
-    command: python -u telegram/bot.py  # Update the path to bot.py
+    command: python -u bot.py  # Update the path to bot.py
     volumes:
-      - ./telegram:/telegram  # Map the telegram folder to the container's /telegram directory
+      - .:/app  # Map the telegram folder to the container's /telegram directory
     depends_on:
       - db
   db:

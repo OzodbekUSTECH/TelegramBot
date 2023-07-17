@@ -7,5 +7,10 @@ DATABASE_URL = "postgresql://postgres:77girado@db/testbot"
 engine = create_engine(DATABASE_URL, echo=True)
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 db = Session()
-
+def get_db():
+    db = Session()
+    try:
+        yield db
+    finally:
+        db.close()
 
