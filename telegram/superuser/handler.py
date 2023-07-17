@@ -3,24 +3,23 @@ from database.db import db
 from database import models
 from aiogram.dispatcher import FSMContext
 from aiogram import types
+from telegram.superuser.inlinekeyboards import get_list_of_all_admin, delete_admin_or_not
 
 
-
-@dp.message_handler(lambda message: message.text == "Список Админов")
-async def get_list_of_admins(message: types.Message, state: FSMContext):
+@dp.callback_query_handler(lambda с: с.data == "list_of_admins_show")
+async def get_list_of_admins(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         curr_page = 0
         data['curr_page'] = curr_page
-    await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id)
-    current_superuser = db.query(models.Admin).filter(models.Admin.tg_id == message.from_user.id).first()
+    
+    current_superuser = db.query(models.Admin).filter(models.Admin.tg_id == callback_query.from_user.id).first()
     if current_superuser:
         all_admins = db.query(models.Admin).filter(models.Admin.id != current_superuser.id).all()
         if not all_admins:
-            await bot.send_message(chat_id=message.from_user.id, text="Нет других админов, кроме вас.")
+            await callback_query.answer("К сожалению, нету админов")
             return
         
 
-      
         admin = all_admins[curr_page]
         
         message_text = (
@@ -33,21 +32,14 @@ async def get_list_of_admins(message: types.Message, state: FSMContext):
             f'Номер телефона: {admin.phone_number}\n'
             f'ID канала: {admin.channel_id}\n'
         )
-        kb = types.InlineKeyboardMarkup()
-        closemsg = types.InlineKeyboardButton(text="Скрыть", callback_data="close_msg")
-        deletebtn = types.InlineKeyboardButton(text="Удалить", callback_data=f"confirm_delete_admin:{admin.id}")
-        backbtn = types.InlineKeyboardButton(text="⬅️", callback_data="prev_post")
-        counter_text = types.InlineKeyboardButton(text=f"{str(curr_page + 1)}/{str(len(all_admins))}", callback_data='_')
-        nextbtn = types.InlineKeyboardButton(text="➡️", callback_data="next_post")
-      
-        kb.add(closemsg, deletebtn).add(backbtn, counter_text, nextbtn)
-
+        
+        buttons = get_list_of_all_admin(admin, curr_page, all_admins)
         # Send the message and store the sent message object in state
-        sent_message = await bot.send_message(chat_id=message.from_user.id, text=message_text, reply_markup=kb)
+        await callback_query.message.edit_text(text=message_text,reply_markup=buttons)
         async with state.proxy() as data:
             data['curr_page'] = curr_page
-            data['sent_message_id'] = sent_message.message_id
-
+           
+from telegram import admincallback
 
 @dp.callback_query_handler(lambda c: c.data in ["next_post", "prev_post"])
 async def pagination_list_admin(callback_query: types.CallbackQuery, state: FSMContext):
@@ -57,7 +49,11 @@ async def pagination_list_admin(callback_query: types.CallbackQuery, state: FSMC
     current_superuser = db.query(models.Admin).filter(models.Admin.tg_id == callback_query.from_user.id).first()
    
     all_admins = db.query(models.Admin).filter(models.Admin.id != current_superuser.id).all()
-      
+    if not all_admins:
+        # If there are no admins left (except the superuser), inform the user and return
+        await callback_query.answer("Больше нет Админов")
+        await admincallback.back_to_main_menu(callback_query)
+        return
     if callback_query.data == "next_post":
         curr_page += 1
         if curr_page >= len(all_admins):
@@ -79,39 +75,26 @@ async def pagination_list_admin(callback_query: types.CallbackQuery, state: FSMC
         f'Номер телефона: {admin.phone_number}\n'
         f'ID канала: {admin.channel_id}\n'
     )
-    kb = types.InlineKeyboardMarkup()
-    closemsg = types.InlineKeyboardButton(text="Скрыть", callback_data="close_msg")
-    deletebtn = types.InlineKeyboardButton(text="Удалить", callback_data=f"confirm_delete_admin:{admin.id}")
-    backbtn = types.InlineKeyboardButton(text="⬅️", callback_data="prev_post")
-    counter_text = types.InlineKeyboardButton(text=f"{str(curr_page + 1)}/{str(len(all_admins))}", callback_data='_')
-    nextbtn = types.InlineKeyboardButton(text="➡️", callback_data="next_post")
-
-    kb.add(closemsg, deletebtn).add(backbtn, counter_text, nextbtn)
-    
+    buttons = get_list_of_all_admin(admin, curr_page, all_admins)
+    await callback_query.message.edit_text(text=message_text, reply_markup=buttons)
     # Get the sent message_id from state and edit the corresponding message
-    sent_message_id = data.get('sent_message_id')
-    if sent_message_id:
-        await bot.edit_message_text(chat_id=callback_query.from_user.id, message_id=sent_message_id, text=message_text, reply_markup=kb)
-
+    
     async with state.proxy() as data:
         data['curr_page'] = curr_page
+
 
 
 
 @dp.callback_query_handler(lambda query: query.data.startswith("confirm_delete_admin:"))
 async def confirm_delete_user_callback(query: types.CallbackQuery, state: FSMContext):
     admin_id = int(query.data.split(':')[-1])
-    # ... (existing code to get the admin from the database)
 
-    # Create an inline keyboard for the confirmation popup
-    kb = types.InlineKeyboardMarkup()
-    yes_btn = types.InlineKeyboardButton(text="Да", callback_data=f"delete_admin_from_list:{admin_id}")
-    no_btn = types.InlineKeyboardButton(text="Нет", callback_data="cancel_delete_admin")
-    kb.add(yes_btn, no_btn)
+    
+    del_or_not_btns = delete_admin_or_not(admin_id)
 
     # Send the confirmation message
    
-    await query.message.edit_text("Вы уверены, что хотите удалить администратора?", reply_markup=kb)
+    await query.message.edit_text("Вы уверены, что хотите удалить администратора?", reply_markup=del_or_not_btns)
 
 
 @dp.callback_query_handler(lambda query: query.data.startswith("delete_admin_from_list:"))

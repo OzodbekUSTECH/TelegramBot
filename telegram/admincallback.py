@@ -19,6 +19,16 @@ async def delete_user_callback(query: types.CallbackQuery):
         chat_id=query.message.chat.id,
         message_id=query.message.message_id)
     await query.answer("АДМИН УДАЛЕН")
+
 @dp.callback_query_handler(lambda query: query.data.startswith("close_msg"))
 async def delete_user_callback(query: types.CallbackQuery):
     await bot.delete_message(chat_id=query.message.chat.id, message_id=query.message.message_id)
+
+
+from telegram.superuser.inlinekeyboards import list_of_admins
+@dp.callback_query_handler(lambda query: query.data.startswith("back_to_main_menu"))
+async def back_to_main_menu(query: types.CallbackQuery):
+    user_id = query.from_user.id
+    db_user = db.query(models.Admin).filter(models.Admin.tg_id == user_id).first()
+    if db_user.is_superuser:
+        await query.message.edit_text(f"Привет, {db_user.first_name}", reply_markup=list_of_admins)
