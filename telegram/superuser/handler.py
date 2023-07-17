@@ -5,7 +5,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram import types
 from telegram.superuser.inlinekeyboards import get_list_of_all_admin, delete_admin_or_not
 from datetime import datetime
-from telegram.superuser.inlinekeyboards import list_of_admins
+from telegram.superuser.inlinekeyboards import get_started_buttons
 
 @dp.callback_query_handler(lambda с: с.data == "list_of_admins_show")
 async def get_list_of_admins(callback_query: types.CallbackQuery, state: FSMContext):
@@ -46,7 +46,7 @@ async def get_list_of_admins(callback_query: types.CallbackQuery, state: FSMCont
         async with state.proxy() as data:
             data['curr_page'] = curr_page
            
-from telegram import admincallback
+
 
 @dp.callback_query_handler(lambda c: c.data in ["next_post", "prev_post"])
 async def pagination_list_admin(callback_query: types.CallbackQuery, state: FSMContext):
@@ -59,7 +59,7 @@ async def pagination_list_admin(callback_query: types.CallbackQuery, state: FSMC
     if not all_admins:
         # If there are no admins left (except the superuser), inform the user and return
         await callback_query.answer("Больше нет Админов")
-        await admincallback.back_to_main_menu(callback_query)
+        await back_to_main_menu(callback_query)
         return
     if callback_query.data == "next_post":
         curr_page += 1
@@ -141,5 +141,7 @@ async def cancel_delete_user_callback(query: types.CallbackQuery, state: FSMCont
 async def back_to_main_menu(query: types.CallbackQuery):
     user_id = query.from_user.id
     db_user = db.query(models.Admin).filter(models.Admin.tg_id == user_id).first()
+    
     if db_user.is_superuser:
-        await query.message.edit_text(f"Привет, {db_user.first_name}", reply_markup=list_of_admins)
+        btns = get_started_buttons(db_user)
+        await query.message.edit_text(f"Привет, {db_user.first_name}", reply_markup=btns)

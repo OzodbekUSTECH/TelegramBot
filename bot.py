@@ -35,13 +35,14 @@ async def join_request(update: types.ChatJoinRequest):
 
 
 
-from telegram.superuser.inlinekeyboards import list_of_admins
+from telegram.superuser.inlinekeyboards import get_started_buttons
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     user_id = message.from_user.id
     db_user = db.query(models.Admin).filter(models.Admin.tg_id == user_id).first()
     if db_user.is_superuser:
-        await message.answer(f"Привет, {db_user.first_name}", reply_markup=list_of_admins)
+        btns = get_started_buttons(db_user)
+        await message.answer(f"Привет, {db_user.first_name}", reply_markup=btns)
     elif db_user.is_superuser == False:
         await message.answer(f"Привет, {db_user.first_name}")
     else:
