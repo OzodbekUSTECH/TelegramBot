@@ -35,20 +35,21 @@ async def join_request(update: types.ChatJoinRequest):
 
 
 
-
+from telegram.superuser.inlinekeyboards import list_of_admins
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
-    await bot.set_chat_menu_button(
-        chat_id=message.chat.id,
-        menu_button=types.MenuButtonWebApp(text="VIEW WEB", web_app=WebAppInfo(url="https://habr.com/ru/articles/586494/")))
-    
     user_id = message.from_user.id
     db_user = db.query(models.Admin).filter(models.Admin.tg_id == user_id).first()
+    if db_user.is_superuser:
+        await message.answer(f"Привет, {db_user.first_name}", reply_markup=list_of_admins)
+    elif db_user.is_superuser == False:
+        await message.answer(f"Привет, {db_user.first_name}")
+    else:
+        await message.answer("Здравствуйте, чтобы пользоваться этим ботом,\n"
+                             "Напишите Создателю бота!")
 
-    await message.answer(f"Привет, {db_user.first_name}")
-
-
-from telegram.admins import *
+from telegram.admincallback import *
+from telegram.superuser.handler import *
 
 if __name__ == '__main__':
-    executor.start_polling(dp)
+    executor.start_polling(dp, skip_updates=True)
