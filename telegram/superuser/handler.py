@@ -36,6 +36,7 @@ async def get_list_of_admins(callback_query: types.CallbackQuery, state: FSMCont
             f'Фамилия: {admin.last_name}\n'
             f'Номер телефона: {admin.phone_number}\n'
             f'ID канала: {admin.channel_id}\n'
+            f'Супер Админ: {admin.is_superuser}\n'
             f'Дата создания: {formatted_date}'
         )
         
@@ -85,6 +86,7 @@ async def pagination_list_admin(callback_query: types.CallbackQuery, state: FSMC
         f'Фамилия: {admin.last_name}\n'
         f'Номер телефона: {admin.phone_number}\n'
         f'ID канала: {admin.channel_id}\n'
+        f'Супер Админ: {admin.is_superuser}\n'
         f'Дата создания: {formatted_date}'
     )
     buttons = get_list_of_all_admin(admin, curr_page, all_admins)

@@ -5,7 +5,7 @@ from aiogram.dispatcher import FSMContext
 from telegram.superuser import handler
 from aiogram import types
 from datetime import datetime
-
+from telegram.superuser import inlinekeyboards
 
 @dp.callback_query_handler(lambda query: query.data.startswith("delete_created_admin:"))
 async def confirm_delete_user_callback(query: types.CallbackQuery):
@@ -61,10 +61,8 @@ async def cancel_delete_user_callback(query: types.CallbackQuery, state: FSMCont
         f'Фамилия: {db_admin.last_name}\n'
         f'Номер телефона: {db_admin.phone_number}\n'
         f'ID канала: {db_admin.channel_id}\n'
+        f'Супер Админ: {db_admin.is_superuser}\n'
         f"Дата создания: {formatted_date}"
     )
-    buttons_new_admin = types.InlineKeyboardMarkup()
-    delete_button = types.InlineKeyboardButton("Удалить", callback_data=f"delete_created_admin:{db_admin.id}")
-    close_msg_button = types.InlineKeyboardButton("Скрыть", callback_data=f"close_msg")
-    buttons_new_admin.add(delete_button).add(close_msg_button)
-    await query.message.edit_text(text=message_text, reply_markup=buttons_new_admin)
+    btns = inlinekeyboards.get_buttons_for_new_admin(db_admin)
+    await query.message.edit_text(text=message_text, reply_markup=btns)

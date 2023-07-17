@@ -41,3 +41,16 @@ class TokenSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+class AdminUpdateSchema(BaseModel):
+    tg_id: Optional[int] = None
+    email: Optional[str] = None
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone_number: Optional[str] = None
+    channel_id: Optional[int] = None
+    is_superuser: Optional[bool] = False
+    
+    class Config:
+        orm_mode = True
