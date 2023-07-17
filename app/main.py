@@ -10,10 +10,16 @@ from fastapi.staticfiles import StaticFiles
 import datetime
 from typing import Optional, List
 from app.auth.router import router as auth_router
-
+from app.post.router import router as post_router
 app = FastAPI(title='TELEGRAM BOT by UTOPIA')
+from fastapi.staticfiles import StaticFiles
 
+app.mount('/static', StaticFiles(directory='static'), name='static')
+
+FILEPATH = "./static/files/"  # Define the file path for storing uploaded files
 app.include_router(auth_router)
+app.include_router(post_router)
+
 
 # channel_id = -1001610513685
 # app.mount('/static', StaticFiles(directory='static'), name='static')
