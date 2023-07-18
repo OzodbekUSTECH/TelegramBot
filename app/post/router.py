@@ -22,7 +22,7 @@ router.mount('/static', StaticFiles(directory='static'), name='static')
 
  # Define the file path for storing uploaded files
 ALLOWED_CONTENT_TYPES = ["image/jpeg", "image/png", "video/mp4"]  # List of allowed content types
-from pydantic import HttpUrl
+
 @router.post("/post")
 async def send_message(request: Request, 
                        background_tasks: BackgroundTasks, 
@@ -56,7 +56,7 @@ async def send_message(request: Request,
     file_content = await media.read()
     with open(generated_name, 'wb') as file:
         file.write(file_content)
-
+    media.close()
     # Create the media URLs using the base_url and the generated_name
     media_url = f'{base_url}{generated_name[2:]}'
 
@@ -72,15 +72,19 @@ async def send_message(request: Request,
 
     async def send_message_task():
         
-          
+        formatted_date = datetime.datetime.strftime(db_post.scheduled_time, "%d %B %Y %H:%M")
         btns = get_btns_for_post(db_post)
-       
+        message_text = (
+            f"{db_post.caption}\n\n"
+            f"<b><em>Дата отправки:</em></b>\n"
+            f"{formatted_date}"
+        )
         if db_post.photo_url:  
             
             
-            await bot.send_photo(chat_id=current_user.tg_id, photo=types.InputFile(db_post.photo_dir), caption=db_post.caption, reply_markup=btns, parse_mode="HTML")  
+            await bot.send_photo(chat_id=current_user.tg_id, photo=types.InputFile(db_post.photo_dir), caption=message_text, reply_markup=btns, parse_mode="HTML")  
         else:
-            await bot.send_video(chat_id=current_user.tg_id, video=types.InputFile(db_post.video_dir), caption=db_post.caption, reply_markup=btns, parse_mode="HTML")
+            await bot.send_video(chat_id=current_user.tg_id, video=types.InputFile(db_post.video_dir), caption=message_text, reply_markup=btns, parse_mode="HTML")
 
     background_tasks.add_task(send_message_task)
 

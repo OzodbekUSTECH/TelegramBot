@@ -40,11 +40,12 @@ from telegram.superuser.inlinekeyboards import get_started_buttons
 async def start(message: types.Message):
     user_id = message.from_user.id
     db_user = db.query(models.Admin).filter(models.Admin.tg_id == user_id).first()
+    btns = get_started_buttons(db_user)
     if db_user.is_superuser:
-        btns = get_started_buttons(db_user)
+        
         await message.answer(f"Привет, {db_user.first_name}", reply_markup=btns)
     elif db_user.is_superuser == False:
-        await message.answer(f"Привет, {db_user.first_name}")
+        await message.answer(f"Привет, {db_user.first_name}", reply_markup=btns)
     else:
         await message.answer("Здравствуйте, чтобы пользоваться этим ботом,\n"
                              "Напишите Создателю бота!")

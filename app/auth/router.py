@@ -62,7 +62,7 @@ async def register(background_tasks: BackgroundTasks,admin: AdminCreateSchema, c
             f"Дата создания: {formatted_date}"
         )
         btns = get_buttons_for_new_admin(db_admin)
-        await bot.send_message(chat_id=current_user.tg_id, text=message_text, reply_markup=btns)
+        await bot.send_message(chat_id=current_user.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
 
     background_tasks.add_task(send_message_task)
 

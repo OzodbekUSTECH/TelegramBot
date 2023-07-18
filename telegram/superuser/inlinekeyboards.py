@@ -3,9 +3,13 @@ from aiogram.types.web_app_info import WebAppInfo
 
 def get_started_buttons(superuser):
     kb = types.InlineKeyboardMarkup(resize_keyboard=True)
+    create_post = types.InlineKeyboardButton(text="Создать Пост", web_app=WebAppInfo(url="https://habr.com/ru/articles/586494/")) #ссылка на создание поста
     create_admin = types.InlineKeyboardMarkup(text="Создать Админа", web_app=WebAppInfo(url="https://habr.com/ru/articles/586494/")) # страница для аккаунта
     get_list_of_admins = types.InlineKeyboardButton(text="Список Админов", callback_data="list_of_admins_show")
-    kb.add(create_admin).add(get_list_of_admins)
+    if superuser.is_superuser:
+        kb.add(create_post, create_admin).add(get_list_of_admins)
+    else:
+        kb.add(create_admin).add(get_list_of_admins)
     return kb
 
 
