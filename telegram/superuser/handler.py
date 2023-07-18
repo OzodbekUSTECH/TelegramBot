@@ -48,7 +48,7 @@ async def get_list_of_admins(callback_query: types.CallbackQuery, state: FSMCont
            
 
 
-@dp.callback_query_handler(lambda c: c.data in ["next_post", "prev_post"])
+@dp.callback_query_handler(lambda c: c.data in ["next_admin", "prev_admin"])
 async def pagination_list_admin(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         curr_page = data['curr_page']
@@ -61,12 +61,12 @@ async def pagination_list_admin(callback_query: types.CallbackQuery, state: FSMC
         await callback_query.answer("Больше нет Админов")
         await back_to_main_menu(callback_query)
         return
-    if callback_query.data == "next_post":
+    if callback_query.data == "next_admin":
         curr_page += 1
         if curr_page >= len(all_admins):
             await callback_query.answer("Больше нет Админов")
             return
-    elif callback_query.data == "prev_post":
+    elif callback_query.data == "prev_admin":
         curr_page -= 1
         if curr_page < 0:
             await callback_query.answer("Нет предыдущих")

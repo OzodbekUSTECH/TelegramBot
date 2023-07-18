@@ -55,8 +55,7 @@ class Post(Base):
     button_url = Column(String, nullable=True)
 
     send_type = Column(String, nullable=True)
-   
-   
+
     
     admin_id = Column(Integer, ForeignKey('admins.id'))
     admin = relationship("Admin", back_populates="posts")

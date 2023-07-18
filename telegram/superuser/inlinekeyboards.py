@@ -3,13 +3,14 @@ from aiogram.types.web_app_info import WebAppInfo
 
 def get_started_buttons(superuser):
     kb = types.InlineKeyboardMarkup(resize_keyboard=True)
+    list_of_planned_posts = types.InlineKeyboardButton("Запланированные посты", callback_data="list_of_planned_posts_show")
     create_post = types.InlineKeyboardButton(text="Создать Пост", web_app=WebAppInfo(url="https://habr.com/ru/articles/586494/")) #ссылка на создание поста
     create_admin = types.InlineKeyboardMarkup(text="Создать Админа", web_app=WebAppInfo(url="https://habr.com/ru/articles/586494/")) # страница для аккаунта
-    get_list_of_admins = types.InlineKeyboardButton(text="Список Админов", callback_data="list_of_admins_show")
+    list_of_admins = types.InlineKeyboardButton(text="Список Админов", callback_data="list_of_admins_show")
     if superuser.is_superuser:
-        kb.add(create_post, create_admin).add(get_list_of_admins)
+        kb.add(create_post, create_admin).add(list_of_admins).add(list_of_planned_posts)
     else:
-        kb.add(create_admin).add(get_list_of_admins)
+        kb.add(create_post).add(list_of_planned_posts)
     return kb
 
 
@@ -19,9 +20,9 @@ def get_list_of_all_admin(admin, curr_page, all_admins):
     closemsg = types.InlineKeyboardButton(text="Назад", callback_data="back_to_main_menu")
     edit_btn = types.InlineKeyboardButton(text="Ред.",  web_app=WebAppInfo(url="https://habr.com/ru/articles/586494/")) #нужно будет динамично передать id админа
     deletebtn = types.InlineKeyboardButton(text="Удалить", callback_data=f"confirm_delete_admin:{admin.id}")
-    backbtn = types.InlineKeyboardButton(text="⬅️", callback_data="prev_post")
+    backbtn = types.InlineKeyboardButton(text="⬅️", callback_data="prev_admin")
     counter_text = types.InlineKeyboardButton(text=f"{str(curr_page + 1)}/{str(len(all_admins))}", callback_data='_')
-    nextbtn = types.InlineKeyboardButton(text="➡️", callback_data="next_post")
+    nextbtn = types.InlineKeyboardButton(text="➡️", callback_data="next_admin")
     
     kb.add(closemsg, edit_btn, deletebtn).add(backbtn, counter_text, nextbtn)
     return kb
