@@ -6,6 +6,14 @@ from aiogram import types
 
 from aiogram.utils.exceptions import BotBlocked
 
+@dp.callback_query_handler(lambda c: c.data == "invalid_channel_link")
+async def warn_invalid_channel_link(callback_query: types.CallbackQuery):
+    message_text = (
+        "Введите правильное ID канала!"
+    )
+    await callback_query.answer(text=message_text)
+
+
 @dp.callback_query_handler(lambda c: c.data == "get_own_subs_statictic")
 async def get_own_channel_statistics(callback_query: types.CallbackQuery):
     current_user = db.query(models.Admin).filter(models.Admin.tg_id == callback_query.from_user.id).first()
@@ -68,7 +76,7 @@ async def get_all_channels_statistics(callback_query: types.CallbackQuery, state
             f"Забанили бота: {len(banned_subs)} 😔"
         )
         
-        btns = get_list_of_all_channels_statistics(curr_page=curr_page, all_channels=all_channels)
+        btns = await get_list_of_all_channels_statistics(curr_page=curr_page, all_channels=all_channels)
         await callback_query.message.edit_text(text=message_text, reply_markup=btns, parse_mode="HTML")
         async with state.proxy() as data:
             data['curr_page'] = curr_page
@@ -103,7 +111,7 @@ async def pagination_list_of_channels(callback_query: types.CallbackQuery, state
         channel = all_channels[curr_page]
         active_subs_of_channel = db.query(models.User).filter(models.User.has_banned == False, models.User.admin == channel).all()
         banned_subs_of_channel = db.query(models.User).filter(models.User.has_banned == True, models.User.admin == channel).all()
-        btns = get_list_of_all_channels_statistics(curr_page=curr_page, all_channels=all_channels, channel=channel)
+        btns = await get_list_of_all_channels_statistics(curr_page=curr_page, all_channels=all_channels, channel=channel)
 
         message_text = (
             f"Админ канала: @{channel.username}\n"
@@ -112,7 +120,7 @@ async def pagination_list_of_channels(callback_query: types.CallbackQuery, state
             f"Забанили бота: {len(banned_subs_of_channel)} 😔"
         )
 
-        await callback_query.message.edit_text(text=message_text, reply_markup=btns)
+        await callback_query.message.edit_text(text=message_text, reply_markup=btns, parse_mode="HTML")
 
         async with state.proxy() as data:
             data['curr_page'] = curr_page
