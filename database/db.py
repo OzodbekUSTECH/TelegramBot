@@ -2,7 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
-DATABASE_URL = "postgresql://botadmin:77girado@localhost:5432/testbot"
+# DATABASE_URL = "postgresql://postgres:77girado@db/testbot"
+#для продакшена
+DATABASE_URL = "postgresql://botadmin:77girado@localhost:5432/testbot" 
 
 engine = create_engine(DATABASE_URL, echo=True)
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)

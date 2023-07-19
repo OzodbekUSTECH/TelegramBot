@@ -43,10 +43,14 @@ async def start(message: types.Message):
     user_id = message.from_user.id
     db_user = db.query(models.Admin).filter(models.Admin.tg_id == user_id).first()
     if not db_user:
+        kb = types.InlineKeyboardMarkup()
+        link = types.InlineKeyboardButton("Написать Админу", url="https://t.me/UnLuckyLoX")
+        kb.add(link)
         await message.answer("Здравствуйте, чтобы пользоваться этим ботом,\n"
-                             "Напишите Создателю бота!")
-    btns = get_started_buttons(db_user)
-    await message.answer(f"Привет, {db_user.first_name}", reply_markup=btns)
+                             "Напишите Создателю бота!", reply_markup=kb)
+    else:
+        btns = get_started_buttons(db_user)
+        await message.answer(f"Привет, {db_user.first_name}", reply_markup=btns)
 
 
 
