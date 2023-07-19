@@ -6,6 +6,8 @@ from fastapi import APIRouter, Depends, UploadFile, File, status
 import shutil
 from aiogram import types
 import os
+from fastapi.middleware.cors import CORSMiddleware 
+
 from fastapi.staticfiles import StaticFiles
 import datetime
 from typing import Optional, List
@@ -15,7 +17,15 @@ app = FastAPI(title='TELEGRAM BOT by UTOPIA')
 from fastapi.staticfiles import StaticFiles
 
 app.mount('/static', StaticFiles(directory='static'), name='static')
+origins = ['*']
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+) 
 FILEPATH = "./static/files/"  # Define the file path for storing uploaded files
 app.include_router(auth_router)
 app.include_router(post_router)
