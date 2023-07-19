@@ -23,6 +23,8 @@ async def join_request(update: types.ChatJoinRequest):
     admin = db.query(models.Admin).filter(models.Admin.channel_id == channel_id).first()
     user = db.query(models.User).filter(models.User.tg_id == user_id).first()
     if not user:
+        if admin:
+            return
         user = models.User(
             tg_id=user_id, 
             name=update.from_user.first_name, 
@@ -44,10 +46,10 @@ async def start(message: types.Message):
         await message.answer("Здравствуйте, чтобы пользоваться этим ботом,\n"
                              "Напишите Создателю бота!")
     btns = get_started_buttons(db_user)
-    if db_user.is_superuser:
-        await message.answer(f"Привет, {db_user.first_name}", reply_markup=btns)
-    else:
-        await message.answer(f"Привет, {db_user.first_name}", reply_markup=btns)
+    await message.answer(f"Привет, {db_user.first_name}", reply_markup=btns)
+
+
+
 
 from app.post import utils
 async def on_startup(_):
@@ -65,7 +67,7 @@ async def on_startup(_):
 
         elif post.send_type == 'Отправить подписчикам и в канал':
             asyncio.create_task(utils.send_to_everywhere(post))
-        
+    
 
 from telegram.admincallback import *
 from telegram.superuser.handler import *

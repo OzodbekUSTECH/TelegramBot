@@ -12,24 +12,20 @@ async def get_channel_link(channel_id):
         return None
 
 
-async def get_list_of_all_channels_statistics(curr_page, all_channels, channel = None):
+def get_list_of_all_channels_statistics(curr_page, all_channels, channel = None, link_channel = None):
     kb = types.InlineKeyboardMarkup()
     #кнопка чтобы перейти на канал надо сделать
-    if channel is not None:
-        link = await get_channel_link(channel.channel_id)
-        if link is None:
-            channel_link = types.InlineKeyboardButton(text="Перейти в канал", callback_data="invalid_channel_link")
-        else:
-            channel_link = types.InlineKeyboardButton(text="Перейти в канал", url=link)
     
+    channel_link = types.InlineKeyboardButton(text="Перейти в канал", url=link_channel)
+    change_channel_id = types.InlineKeyboardButton(text="Изменить ", web_app=WebAppInfo(url="https://habr.com/ru/articles/586494/")) #ссылка на измение айди канала 
     closemsg = types.InlineKeyboardButton(text="Назад", callback_data="back_to_main_menu")
     backbtn = types.InlineKeyboardButton(text="⬅️", callback_data="prev_channel")
     counter_text = types.InlineKeyboardButton(text=f"{str(curr_page + 2)}/{str(len(all_channels) + 1)}", callback_data='_')
     nextbtn = types.InlineKeyboardButton(text="➡️", callback_data="next_channel")
-    if channel is not None:
+    if channel is not None and link_channel is not None:
         kb.add(closemsg, channel_link).add(backbtn, counter_text, nextbtn)
     else:
-        kb.add(closemsg).add(backbtn, counter_text, nextbtn)
+        kb.add(closemsg, change_channel_id).add(backbtn, counter_text, nextbtn)
 
     return kb
 
