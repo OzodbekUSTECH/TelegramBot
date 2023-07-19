@@ -3,14 +3,16 @@ from aiogram.types.web_app_info import WebAppInfo
 
 def get_started_buttons(superuser):
     kb = types.InlineKeyboardMarkup(resize_keyboard=True)
+    all_subs_statistic = types.InlineKeyboardButton("Общая статистика", callback_data="get_all_statistics_of_channels")
+    own_subs_statictic = types.InlineKeyboardButton("Статистика подписчиков", callback_data="get_own_subs_statictic")
     list_of_planned_posts = types.InlineKeyboardButton("Запланированные посты", callback_data="list_of_planned_posts_show")
     create_post = types.InlineKeyboardButton(text="Создать Пост", web_app=WebAppInfo(url="https://habr.com/ru/articles/586494/")) #ссылка на создание поста
     create_admin = types.InlineKeyboardMarkup(text="Создать Админа", web_app=WebAppInfo(url="https://habr.com/ru/articles/586494/")) # страница для аккаунта
     list_of_admins = types.InlineKeyboardButton(text="Список Админов", callback_data="list_of_admins_show")
     if superuser.is_superuser:
-        kb.add(create_post, create_admin).add(list_of_admins).add(list_of_planned_posts)
+        kb.add(create_post, create_admin).add(own_subs_statictic).add(list_of_admins).add(list_of_planned_posts).add(all_subs_statistic)
     else:
-        kb.add(create_post).add(list_of_planned_posts)
+        kb.add(create_post).add(list_of_planned_posts).add(own_subs_statictic)
     return kb
 
 

@@ -6,7 +6,6 @@ from aiogram import types
 from telegram.post import ikbs
 import datetime
 import asyncio
-from telegram.post import ikbs
 @dp.callback_query_handler(lambda query: query.data.startswith("cancel_sending_post:"))
 async def cancel_send_post(query: types.CallbackQuery):
     post_id = int(query.data.split(':')[-1])
