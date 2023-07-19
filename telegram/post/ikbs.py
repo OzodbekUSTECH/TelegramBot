@@ -31,7 +31,7 @@ def get_btns_for_pagination_posts(planned_post, curr_page, all_planned_posts):
     counter_text = types.InlineKeyboardButton(text=f"{str(curr_page + 1)}/{str(len(all_planned_posts))}", callback_data='__')
     nextbtn = types.InlineKeyboardButton(text="➡️", callback_data="next_post")
     
-    if planned_post.button_name:
+    if planned_post.button_name and planned_post.button_url:
         kb.add(post_btn).add(closemsg, edit_btn, deletebtn).add(backbtn, counter_text, nextbtn)
     else:
         kb.add(closemsg, edit_btn, deletebtn).add(backbtn, counter_text, nextbtn)

@@ -8,6 +8,7 @@ from datetime import datetime
 
 @dp.callback_query_handler(lambda с: с.data == "list_of_planned_posts_show")
 async def get_list_of_planned_posts(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.finish()
     async with state.proxy() as data:
         curr_page = 0
         data['curr_page'] = curr_page
@@ -21,6 +22,7 @@ async def get_list_of_planned_posts(callback_query: types.CallbackQuery, state: 
     
 
     planned_post = all_planned_posts[curr_page]
+    db.refresh(planned_post)
     btns = ikbs.get_btns_for_pagination_posts(planned_post, curr_page, all_planned_posts)
     formatted_date = datetime.strftime(planned_post.scheduled_time, "%d %B %Y %H:%M")
     message_text = (
@@ -116,14 +118,3 @@ async def cancel_delete_user_callback(query: types.CallbackQuery, state: FSMCont
     await query.answer("УДАЛЕНИЕ ОТМЕНЕНО")
     await pagination_list_planned_posts(query, state)
 
-# @dp.callback_query_handler(lambda query: query.data.startswith("cancel_sending_post:"))
-# async def cancel_send(query: types.CallbackQuery, state: FSMContext):
-#     post_id = int(query.data.split(':')[-1])
-#     post = db.query(models.Post).filter(models.Post.id == post_id).first()
-#     btns = ikbs.get_btns_for_post(post)
-#     if post.photo_dir:
-#         await query.message.edit_media(media=types.InputMediaPhoto(media=open(post.photo_dir, 'rb'), caption=post.caption))
-#         await query.message.edit_reply_markup(reply_markup=btns)
-#     else:
-#         await query.message.edit_media(media=types.InputMediaVideo(media=open(post.video_dir, 'rb'), caption=post.caption))
-#         await query.message.edit_reply_markup(reply_markup=btns)

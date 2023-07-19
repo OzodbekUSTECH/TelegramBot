@@ -57,7 +57,7 @@ async def send_to_channel(query: types.CallbackQuery):
     time_difference = scheduled_time - datetime.datetime.now()
     
     btn_of_post = ikbs.get_post_button(post)
-    
+
     kb = types.InlineKeyboardMarkup()
     post_btn = types.InlineKeyboardButton(text=post.button_name, url=post.button_url)
     closemsg = types.InlineKeyboardButton("Скрыть", callback_data="close_msg")
@@ -75,19 +75,23 @@ async def send_to_channel(query: types.CallbackQuery):
         
         await query.message.edit_caption(caption=message_text, reply_markup=kb, parse_mode="HTML")
         await asyncio.sleep(time_difference.total_seconds())
-        if post.button_name:
-            btn_of_post = ikbs.get_post_button(post)
-            if post.photo_dir:
-                await bot.send_photo(chat_id=post.admin.channel_id, photo=types.InputFile(post.photo_dir), caption=post.caption, reply_markup=btn_of_post)
+        post = db.query(models.Post).filter(models.Post.id == post_id).first()
+        db.refresh(post)
+        if post.scheduled_time <= datetime.datetime.now():
+            if post.button_name:
+                btn_of_post = ikbs.get_post_button(post)
+                if post.photo_dir:
+                    await bot.send_photo(chat_id=post.admin.channel_id, photo=types.InputFile(post.photo_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
+                else:
+                    await bot.send_video(chat_id=post.admin.channel_id, photo=types.InputFile(post.video_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
             else:
-                await bot.send_video(chat_id=post.admin.channel_id, photo=types.InputFile(post.video_dir), caption=post.caption, reply_markup=btn_of_post)
-        else:
-            if post.photo_dir:
-                await bot.send_photo(chat_id=post.admin.channel_id, photo=types.InputFile(post.photo_dir), caption=post.caption)
-            else:
-                await bot.send_video(chat_id=post.admin.channel_id, photo=types.InputFile(post.video_dir), caption=post.caption)
-        post.is_published = True
-        db.commit()
+                if post.photo_dir:
+                    await bot.send_photo(chat_id=post.admin.channel_id, photo=types.InputFile(post.photo_dir), caption=post.caption, parse_mode="HTML")
+                else:
+                    await bot.send_video(chat_id=post.admin.channel_id, photo=types.InputFile(post.video_dir), caption=post.caption, parse_mode="HTML")
+            post.is_published = True
+            db.commit()
+        
 
     else:
 
@@ -169,22 +173,24 @@ async def send_to_subs(query: types.CallbackQuery):
         
         await query.message.edit_caption(caption=message_text, reply_markup=kb, parse_mode="HTML")
         await asyncio.sleep(time_difference.total_seconds())
-        
-        for user in post.admin.users:
-            if post.button_name:
-                if post.photo_dir:
-                    await bot.send_photo(chat_id=user.tg_id, photo=types.InputFile(post.photo_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
-                else:
-                    await bot.send_video(chat_id=user.tg_id, photo=types.InputFile(post.video_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
-            
-            else:
-                if post.photo_dir:
-                    await bot.send_photo(chat_id=user.tg_id, photo=types.InputFile(post.photo_dir), caption=post.caption, parse_mode="HTML")
-                else:
-                    await bot.send_video(chat_id=user.tg_id, photo=types.InputFile(post.video_dir), caption=post.caption, parse_mode="HTML")
+        post = db.query(models.Post).filter(models.Post.id == post_id).first()
+        db.refresh(post)
+        if post.scheduled_time <= datetime.datetime.now():
+            for user in post.admin.users:
+                if post.button_name:
+                    if post.photo_dir:
+                        await bot.send_photo(chat_id=user.tg_id, photo=types.InputFile(post.photo_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
+                    else:
+                        await bot.send_video(chat_id=user.tg_id, photo=types.InputFile(post.video_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
                 
-        post.is_published = True
-        db.commit()
+                else:
+                    if post.photo_dir:
+                        await bot.send_photo(chat_id=user.tg_id, photo=types.InputFile(post.photo_dir), caption=post.caption, parse_mode="HTML")
+                    else:
+                        await bot.send_video(chat_id=user.tg_id, photo=types.InputFile(post.video_dir), caption=post.caption, parse_mode="HTML")
+                    
+            post.is_published = True
+            db.commit()
 
     else:
 
@@ -270,13 +276,35 @@ async def send_to_everywhere(query: types.CallbackQuery):
         
         await query.message.edit_caption(caption=message_text, reply_markup=kb, parse_mode="HTML")
         await asyncio.sleep(time_difference.total_seconds())
-        
-        if post.photo_dir:
-            await bot.send_photo(chat_id=post.admin.channel_id, photo=types.InputFile(post.photo_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
-        else:
-            await bot.send_video(chat_id=post.admin.channel_id, photo=types.InputFile(post.video_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
-        post.is_published = True
-        db.commit()
+        post = db.query(models.Post).filter(models.Post.id == post_id).first()
+        db.refresh(post)
+        if post.scheduled_time <= datetime.datetime.now():
+            for user in post.admin.users():
+                if post.button_name:
+                    if post.photo_dir:
+                        await bot.send_photo(chat_id=user.tg_id, photo=types.InputFile(post.photo_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
+                    else:
+                        await bot.send_video(chat_id=user.tg_id, photo=types.InputFile(post.video_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
+            
+                else:
+                    if post.photo_dir:
+                        await bot.send_photo(chat_id=user.tg_id, photo=types.InputFile(post.photo_dir), caption=post.caption, parse_mode="HTML")
+                    else:
+                        await bot.send_video(chat_id=user.tg_id, photo=types.InputFile(post.video_dir), caption=post.caption, parse_mode="HTML")
+            if post.button_name:
+                if post.button_name:
+                    await bot.send_photo(chat_id=post.admin.channel_id, photo=types.InputFile(post.photo_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
+                else:
+                    await bot.send_video(chat_id=post.admin.channel_id, photo=types.InputFile(post.video_dir), caption=post.caption, reply_markup=btn_of_post, parse_mode="HTML")
+                
+            else:
+                if post.photo_dir:
+                    await bot.send_photo(chat_id=post.admin.channel_id, photo=types.InputFile(post.photo_dir), caption=post.caption, parse_mode="HTML")
+                else:
+                    await bot.send_video(chat_id=post.admin.channel_id, photo=types.InputFile(post.video_dir), caption=post.caption, parse_mode="HTML")
+                
+            post.is_published = True
+            db.commit()
 
     else:
 
