@@ -19,19 +19,33 @@ async def get_channel_subscribers(admin_channel_id):
     # Запускаем клиент
     await client.start()
     admin_of_channel = db.query(models.Admin).filter(models.Admin.channel_id == admin_channel_id).first()
+    super_admin = db.query(models.Admin).filter(models.Admin.is_superuser == True).first()
+    amount_subs = await bot.get_chat_members_count(admin_channel_id)
     all_subs = client.get_chat_members(admin_channel_id)
-    async for subscriber in all_subs:
-        db_user = db.query(models.User).filter(models.User.tg_id == subscriber.user.id).first()
-        if subscriber.user.is_bot == False and not db_user:
-            new_user = models.User(
-                tg_id=subscriber.user.id, 
-                name=subscriber.user.first_name, 
-                admin=admin_of_channel)
-            db.add(new_user)
-            db.commit()
-       
-            print(f"Subscriber ID: {subscriber.user.id}, Username: {subscriber.user.username}")
+    if amount_subs != len(admin_of_channel.users):
+        async for subscriber in all_subs:
+            db_user = db.query(models.User).filter(models.User.tg_id == subscriber.user.id).first()
+            if subscriber.user.is_bot == False and not db_user and subscriber.user.id != admin_of_channel.tg_id and subscriber.user.id != super_admin.tg_id:
+                
+                new_user = models.User(
+                    tg_id=subscriber.user.id, 
+                    name=subscriber.user.first_name, 
+                    admin=admin_of_channel)
+                db.add(new_user)
+                db.commit()
 
+
+    all_subs = db.query(models.User).filter(models.User.admin == admin_of_channel).all()
+
+    for sub in all_subs:
+        
+        try:
+            await bot.send_chat_action(sub.tg_id, action=types.ChatActions.TYPING)
+            sub.has_banned = False
+        except BotBlocked:
+            sub.has_banned = True
+        
+    db.commit()
     await client.stop()
 
 
@@ -48,19 +62,11 @@ GETIDSBOT_INSTRUCTION = """
 @dp.callback_query_handler(lambda c: c.data == "get_own_subs_statictic")
 async def get_own_channel_statistics(callback_query: types.CallbackQuery):
     current_user = db.query(models.Admin).filter(models.Admin.tg_id == callback_query.from_user.id).first()
-    await callback_query.answer("Обновляем")
-    await get_channel_subscribers(current_user.channel_id, callback_query)
+    await callback_query.answer("Обновляем, подождите немного...")
+    await get_channel_subscribers(current_user.channel_id)
     all_subs = db.query(models.User).filter(models.User.admin == current_user).all()
 
-    for sub in all_subs:
-        
-        try:
-            await bot.send_chat_action(sub.tg_id, action=types.ChatActions.TYPING)
-            sub.has_banned = False
-        except BotBlocked:
-            sub.has_banned = True
-        
-    db.commit()
+    
     
     banned_subs = db.query(models.User).filter(models.User.has_banned == True, models.User.admin == current_user).all()
     active_subs = db.query(models.User).filter(models.User.has_banned == False, models.User.admin == current_user).all()
