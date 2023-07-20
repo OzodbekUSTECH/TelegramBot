@@ -17,7 +17,8 @@ def get_list_of_all_channels_statistics(curr_page, all_channels, channel = None,
     #кнопка чтобы перейти на канал надо сделать
     
     channel_link = types.InlineKeyboardButton(text="Перейти в канал", url=link_channel)
-    change_channel_id = types.InlineKeyboardButton(text="Изменить ", web_app=WebAppInfo(url=f"https://gazoblok-bukhara.uz/api/v1/admin/{channel.id}/channel")) #ссылка на измение айди канала 
+    if channel is not None
+        change_channel_id = types.InlineKeyboardButton(text="Изменить ", web_app=WebAppInfo(url=f"https://gazoblok-bukhara.uz/api/v1/admin/{channel.id}/channel")) #ссылка на измение айди канала 
     closemsg = types.InlineKeyboardButton(text="Назад", callback_data="back_to_main_menu")
     backbtn = types.InlineKeyboardButton(text="⬅️", callback_data="prev_channel")
     counter_text = types.InlineKeyboardButton(text=f"{str(curr_page + 2)}/{str(len(all_channels) + 1)}", callback_data='_')
