@@ -157,7 +157,7 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         db_admin.channel_id = new_data.channel_id
 
     db.commit()
-    db.refresh(db_admin)
+    
 
     super_users = db.query(models.Admin).filter(models.Admin.is_superuser == True, models.Admin.tg_id != current_user.tg_id).all()
 
@@ -201,5 +201,5 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
             await bot.send_message(chat_id=superuser.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
 
     background_tasks.add_task(send_message_task)
-
+    
     return db_admin
