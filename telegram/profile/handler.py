@@ -7,9 +7,9 @@ import datetime
 from aiogram.types.web_app_info import WebAppInfo
 
 def get_btns_for_profile(admin):
-    kb = types.ReplyKeyboardMarkup()
+    kb = types.InlineKeyboardButton()
     edit_profile = types.InlineKeyboardButton("Редактировать", web_app=WebAppInfo(url="https://vladlenkhan.github.io/tgbot/"))
-    backbtn = types.InlineKeyboardButton(text="Назад", callback_data="back_to_main_menu")
+    backbtn = types.InlineKeyboardButton("Назад", callback_data="back_to_main_menu")
     kb.add(edit_profile).add(backbtn)
 
     return kb
