@@ -134,13 +134,12 @@ async def get_admin_by_id(admin_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found. dont exist")
     return db_admin
 
-import copy
 @router.put("/update/own/data", response_model=UpdateOwnDataResponse)
 async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwnAdminSchema, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     db_admin = db.query(models.Admin).filter(models.Admin.id == current_user.id).first()
     if not db_admin:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You are not an admin")
-    prev_data = copy.deepcopy(db_admin)
+    prev_data = db_admin
 
     # Apply the updates to the db_admin object
     if new_data.email is not None:
@@ -155,10 +154,6 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         db_admin.phone_number = new_data.phone_number
     if new_data.channel_id is not None:
         db_admin.channel_id = new_data.channel_id
-
-    
-
-    
     
 
     super_users = db.query(models.Admin).filter(models.Admin.is_superuser == True, models.Admin.tg_id != current_user.tg_id).all()
@@ -169,7 +164,7 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         def add_change(field_name, prev_value, new_value):
             nonlocal message_text
             if prev_value != new_value:
-                message_text += f"{field_name}:\n{prev_value} => {new_value}\n"
+                message_text += f"{field_name}:\n{prev_value} => {new_value}\n\n"
             else:
                 message_text += f"{field_name}: {new_value}\n"
 
@@ -179,7 +174,7 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         print(prev_data.last_name)
     
         add_change("Email", prev_data.email, db_admin.email)
-        add_change("Username", prev_data.username, f"@{db_admin.username}")
+        add_change("Username", f"@{prev_data.username}", f"@{db_admin.username}")
         add_change("Имя", prev_data.first_name, db_admin.first_name)
         add_change("Фамилия", prev_data.last_name, db_admin.last_name)
         add_change("Номер телефона", prev_data.phone_number, db_admin.phone_number)
