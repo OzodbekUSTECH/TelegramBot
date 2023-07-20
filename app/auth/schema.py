@@ -54,3 +54,14 @@ class AdminUpdateSchema(BaseModel):
     
     class Config:
         orm_mode = True
+
+class UpdateOwnAdminSchema(BaseModel):
+    email: Optional[str] = None
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone_number: Optional[str] = None
+    channel_id: Optional[str] = None
+
+    class Config:
+        orm_mode = True
