@@ -66,17 +66,3 @@ class UpdateOwnAdminSchema(BaseModel):
     class Config:
         orm_mode = True
 
-class UpdateOwnAdminDataReponse(BaseModel):
-    id: int
-    tg_id: Optional[int]
-    email: Optional[str]
-    username: Optional[str]
-    first_name: Optional[str]
-    last_name: Optional[str]
-    phone_number: Optional[str]
-    channel_id: Optional[int]
-    is_superuser: bool = False
-    created_at: datetime
-
-    class Config:
-        orm_mode = True
