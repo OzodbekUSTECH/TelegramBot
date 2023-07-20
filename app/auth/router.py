@@ -140,7 +140,6 @@ async def change_own_data(background_tasks: BackgroundTasks,new_data = UpdateOwn
     db_admin = db.query(models.Admin).filter(models.Admin.id == current_user.id).first()
     if not db_admin:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You are not an admin")
-    prev_data = db_admin
     if new_data.email is not None:
         db_admin.email = new_data.email
     if new_data.username is not None:
