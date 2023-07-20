@@ -133,3 +133,21 @@ async def get_admin_by_id(admin_id: int, db: Session = Depends(get_db)):
     if not db_admin:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found. dont exist")
     return db_admin
+
+
+
+@router.put("/admin/{admin_id}/channel/", name="change channel ID")
+async def edit_admin_channel_id(admin_id: int, new_channel_id: int = None, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.is_superuser == False:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Недостаточно прав доступа.")
+    db_admin = db.query(models.Admin).filter(models.Admin.id == admin_id).first()
+    if not db_admin:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Admin not found")
+    prev_channel_id = db_admin.channel_id
+
+    if new_channel_id is not None and new_channel_id != prev_channel_id:
+        db_admin.channel_id = new_channel_id
+        db.commit()
+        db.refresh(db_admin)
+    
+    return {"Успешно изменен ID канала у админа"}
