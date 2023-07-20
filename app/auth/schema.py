@@ -29,7 +29,7 @@ class AdminSchema(BaseModel):
     last_name: Optional[str]
     phone_number: Optional[str]
     channel_id: Optional[int]
-    is_superuser: bool
+    is_superuser: bool = False
     created_at: datetime
 
     class Config:
