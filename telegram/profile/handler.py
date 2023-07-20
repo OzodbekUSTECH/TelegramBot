@@ -78,9 +78,11 @@ async def get_new_password(callback_query: types.CallbackQuery):
         subtype=MessageType.html
     )
     fm = FastMail(conf)
-    fm.send_message(message)
-
-    await callback_query.message.edit_text("Новый пароль был отправлен на вашу почту!")
+    await fm.send_message(message)
+    kb = types.InlineKeyboardMarkup()
+    backbtn = types.InlineKeyboardButton("Назад", callback_data="back_to_main_menu")
+    kb.add(backbtn)
+    await callback_query.message.edit_text("Новый пароль был отправлен на вашу почту!", reply_markup=kb)
 
 
 
