@@ -135,7 +135,7 @@ async def get_admin_by_id(admin_id: int, db: Session = Depends(get_db)):
     return db_admin
 
 
-@router.put("/admin/me", response_model=AdminSchema, tags=['Own DATA'])
+@router.put("/admin/me/update", response_model=AdminSchema, tags=['Own DATA'])
 async def change_own_data(background_tasks: BackgroundTasks,new_data = UpdateOwnAdminSchema, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     db_admin = db.query(models.Admin).filter(models.Admin.id == current_user.id).first()
     if not db_admin:
