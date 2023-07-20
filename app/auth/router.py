@@ -126,9 +126,9 @@ async def update_admin_data(admin_id: int, admin_update: AdminUpdateSchema, curr
     return db_admin
 
 @router.get('admin/{admin_id}', name="get admin by id", response_model = AdminSchema)
-async def get_admin_by_id(admin_id: int, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You are not a superuser")
+async def get_admin_by_id(admin_id: int, db: Session = Depends(get_db)):
+    # if not current_user.is_superuser:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You are not a superuser")
     db_admin = db.query(models.Admin).filter(models.Admin.id == admin_id).first()
     if not db_admin:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found. dont exist")
