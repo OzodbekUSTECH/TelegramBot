@@ -7,12 +7,12 @@ class PostSchema(BaseModel):
     caption: Optional[str]
     scheduled_time: Optional[datetime]
     is_published: bool = False
-    photo_dir = str
-    photo_url = str
-    video_dir = str
-    video_url = str
-    button_name = str
-    button_url = str
+    photo_dir = Optional[str]
+    photo_url = Optional[str]
+    video_dir = Optional[str]
+    video_url = Optional[str]
+    button_name = Optional[str]
+    button_url = Optional[str]
     send_type = Optional[str]
     admin_id = int
 
@@ -25,12 +25,12 @@ class CreatePostResponseSchema(BaseModel):
     caption: Optional[str]
     scheduled_time: Optional[datetime]
     is_published: bool = False
-    photo_dir = str
-    photo_url = str
-    video_dir = str
-    video_url = str
-    button_name = str
-    button_url = str
+    photo_dir = Optional[str]
+    photo_url = Optional[str]
+    video_dir = Optional[str]
+    video_url = Optional[str]
+    button_name = Optional[str]
+    button_url = Optional[str]
     admin_id = int
 
     class Config:
