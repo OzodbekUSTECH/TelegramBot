@@ -10,6 +10,8 @@ async def get_channel_link(channel_id):
             return chat.invite_link
     except Exception:
         return None
+    
+from urllib.parse import quote
 
 
 def get_list_of_all_channels_statistics(curr_page, all_channels, channel = None, link_channel = None):
@@ -26,9 +28,13 @@ def get_list_of_all_channels_statistics(curr_page, all_channels, channel = None,
     if channel is not None and link_channel is not None:
         kb.add(closemsg, channel_link).add(backbtn, counter_text, nextbtn)
     elif channel is not None and link_channel is None:
-        
-        change_channel_id = types.InlineKeyboardButton(text="Изменить ", web_app=WebAppInfo(url=f"https://gazoblok-bukhara.uz/api/v1/admin/{channel.id}/channel")) #ссылка на измение айди канала 
+        change_channel_url = f"https://gazoblok-bukhara.uz/api/v1/admin/{channel.id}/channel"
+        encoded_change_channel_url = quote(change_channel_url, safe='')
 
+        change_channel_id = types.InlineKeyboardButton(
+            text="Изменить",
+            url=f"https://t.me/apitgustech_bot?start={encoded_change_channel_url}"
+        )
         kb.add(closemsg, change_channel_id).add(backbtn, counter_text, nextbtn)
     else:
         kb.add(closemsg).add(backbtn, counter_text, nextbtn)
