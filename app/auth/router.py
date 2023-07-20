@@ -134,13 +134,13 @@ async def get_admin_by_id(admin_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found. dont exist")
     return db_admin
 
-
+import copy
 @router.put("/update/own/data", response_model=UpdateOwnDataResponse)
 async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwnAdminSchema, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     db_admin = db.query(models.Admin).filter(models.Admin.id == current_user.id).first()
     if not db_admin:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You are not an admin")
-    prev_data = db_admin
+    prev_data = copy.deepcopy(db_admin)
 
     # Apply the updates to the db_admin object
     if new_data.email is not None:
@@ -156,6 +156,9 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
     if new_data.channel_id is not None:
         db_admin.channel_id = new_data.channel_id
 
+    db.commit()
+    db.refresh(db_admin)
+
     
     
 
@@ -163,7 +166,6 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
 
     async def send_message_task():
         message_text = "Данные были изменены:\n\n"
-        nonlocal prev_data 
         # Helper function to check if a field is updated and add it to the message_text
         def add_change(field_name, prev_value, new_value):
             nonlocal message_text
@@ -176,11 +178,7 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         print(prev_data.username)
         print(prev_data.first_name)
         print(prev_data.last_name)
-        print('----------')
-        print('----------')
-        print('----------')
-        print('----------')
-        print('----------')
+    
         add_change("Email", prev_data.email, db_admin.email)
         add_change("Username", prev_data.username, f"@{db_admin.username}")
         add_change("Имя", prev_data.first_name, db_admin.first_name)
@@ -200,6 +198,5 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         for superuser in super_users:
             await bot.send_message(chat_id=superuser.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
 
-    background_tasks.add_task(send_message_task)
-    db.commit()
+   
     return db_admin
