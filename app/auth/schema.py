@@ -52,8 +52,8 @@ class AdminUpdateSchema(BaseModel):
     channel_id: Optional[int] = None
     is_superuser: Optional[bool] = False
     
-    # class Config:
-    #     orm_mode = True
+    class Config:
+        orm_mode = True
 
 class UpdateOwnAdminSchema(BaseModel):
     email: Optional[str] = None
@@ -63,8 +63,8 @@ class UpdateOwnAdminSchema(BaseModel):
     phone_number: Optional[str] = None
     channel_id: Optional[int] = None
 
-    # class Config:
-    #     orm_mode = True
+    class Config:
+        orm_mode = True
 
 class UpdateOwnAdminDataReponse(BaseModel):
     id: int
