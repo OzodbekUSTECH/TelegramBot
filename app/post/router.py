@@ -12,7 +12,7 @@ from fastapi import Request
 from typing import Optional, List
 import datetime
 from app.post import utils
-from app.post.schema import *
+from app.post.schema import PostSchema, CreatePostResponseSchema
 router = APIRouter(
     prefix='/api/v1',
     tags = ['post']
