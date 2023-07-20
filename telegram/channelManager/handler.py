@@ -12,7 +12,7 @@ async def get_channel_subscribers(admin_channel_id):
     # Создаем клиент Pyrogram
     api_id = '20122546'
     api_hash = 'c3ca5ae4e368b18eccd06a5edcd7eec0'
-    bot_token = '6025752741:AAFav4ooRRMsHUUHEhvouJznrjjiH2QuzeM'
+    bot_token = '6095169791:AAEQM5y8u1IPLPMhvOZDVQlqTDSMAadjmL0'
 
     client = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
     
