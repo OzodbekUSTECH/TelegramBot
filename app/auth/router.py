@@ -136,7 +136,7 @@ async def get_admin_by_id(admin_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/admin/me", response_model=AdminSchema)
-async def change_own_data(background_tasks: BackgroundTasks,new_data = UpdateOwnAdminSchema, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+async def change_own_data(background_tasks: BackgroundTasks,new_data: UpdateOwnAdminSchema, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     db_admin = db.query(models.Admin).filter(models.Admin.id == current_user.id).first()
     if not db_admin:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You are not an admin")
