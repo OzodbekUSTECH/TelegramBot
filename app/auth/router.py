@@ -163,7 +163,7 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
 
     async def send_message_task():
         message_text = "Данные были изменены:\n\n"
-
+        nonlocal prev_data 
         # Helper function to check if a field is updated and add it to the message_text
         def add_change(field_name, prev_value, new_value):
             nonlocal message_text
