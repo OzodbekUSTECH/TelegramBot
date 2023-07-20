@@ -156,8 +156,7 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
     if new_data.channel_id is not None:
         db_admin.channel_id = new_data.channel_id
 
-    db.commit()
-    db.refresh(db_admin)
+    
 
     
     
@@ -197,6 +196,6 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         await bot.send_message(chat_id=current_user.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
         for superuser in super_users:
             await bot.send_message(chat_id=superuser.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
-
+        db.commit()
     background_tasks.add_task(send_message_task)
     return db_admin
