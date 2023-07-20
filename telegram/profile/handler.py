@@ -6,13 +6,7 @@ from aiogram import types
 import datetime
 from aiogram.types.web_app_info import WebAppInfo
 
-def get_btns_for_profile(admin):
-    kb = types.InlineKeyboardButton()
-    edit_profile = types.InlineKeyboardButton("Редактировать", web_app=WebAppInfo(url="https://vladlenkhan.github.io/tgbot/"))
-    backbtn = types.InlineKeyboardButton("Назад", callback_data="back_to_main_menu")
-    kb.add(edit_profile).add(backbtn)
 
-    return kb
 
 
 @dp.callback_query_handler(lambda c: c.data.startswith("get_my_info:"))
@@ -41,3 +35,10 @@ async def get_own_info(callback_query: types.CallbackQuery):
     await callback_query.message.edit_text(message_text, reply_markup=btns)
 
 
+def get_btns_for_profile(admin):
+    kb = types.InlineKeyboardMarkup()
+    edit_profile = types.InlineKeyboardButton(text="Редактировать", web_app=WebAppInfo(url="https://vladlenkhan.github.io/tgbot/"))
+    backbtn = types.InlineKeyboardButton(text="Назад", callback_data="back_to_main_menu")
+    kb.add(edit_profile).add(backbtn)
+
+    return kb
