@@ -12,6 +12,7 @@ from fastapi import Request
 from typing import Optional, List
 import datetime
 from app.post import utils
+from app.post.schema import *
 router = APIRouter(
     prefix='/api/v1',
     tags = ['post']
@@ -24,7 +25,17 @@ router.mount('/static', StaticFiles(directory='static'), name='static')
  # Define the file path for storing uploaded files
 ALLOWED_CONTENT_TYPES = ["image/jpeg", "image/png", "video/mp4"]  # List of allowed content types
 
-@router.post("/post")
+
+
+
+@router.get('/post/{post_id}', name="get post by ID", response_model = PostSchema) #добавить сюда curretn user
+async def get_post_by_id(post_id: int, db: Session = Depends(get_db)):
+    db_post = db.query(models.Post).filter(models.Post.id == post_id).first()
+    if not db_post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+
+    raise db_post
+@router.post("/post", name='create post', response_model=CreatePostResponseSchema)
 async def send_message(request: Request, 
                        background_tasks: BackgroundTasks, 
                        media: UploadFile = File(...), 
@@ -96,8 +107,19 @@ async def send_message(request: Request,
 
     background_tasks.add_task(send_message_task)
 
-
-    return {"status": "Post created."}
+    response = CreatePostResponseSchema(
+        id = db_post.id,
+        caption = db_post.caption,
+        scheduled_time=db_post.scheduled_time,
+        is_published=db_post.is_published,
+        photo_dir = db_post.photo_dir,
+        photo_url = db_post.photo_url,
+        video_dir = db_post.video_dir,
+        button_name = db_post.button_name,
+        button_url = db_post.button_url,
+        admin_id = db_post.admin_id
+    )
+    return response
 
 
 @router.put('/post/{post_id}')
