@@ -168,16 +168,19 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         def add_change(field_name, prev_value, new_value):
             nonlocal message_text
             if prev_value != new_value:
-                if prev_value is None:
-                    prev_value = ""
-                if new_value is None:
-                    new_value = ""
                 message_text += f"{field_name}:\n{prev_value} => {new_value}\n"
             else:
                 message_text += f"{field_name}: {new_value}\n"
 
-        add_change("Номер Админа", prev_data.id, db_admin.id)
-        add_change("ID tg", prev_data.tg_id, db_admin.tg_id)
+        print(prev_data.email)
+        print(prev_data.username)
+        print(prev_data.first_name)
+        print(prev_data.last_name)
+        print('----------')
+        print('----------')
+        print('----------')
+        print('----------')
+        print('----------')
         add_change("Email", prev_data.email, db_admin.email)
         add_change("Username", prev_data.username, f"@{db_admin.username}")
         add_change("Имя", prev_data.first_name, db_admin.first_name)
@@ -196,7 +199,6 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         await bot.send_message(chat_id=current_user.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
         for superuser in super_users:
             await bot.send_message(chat_id=superuser.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
-
 
     background_tasks.add_task(send_message_task)
 
