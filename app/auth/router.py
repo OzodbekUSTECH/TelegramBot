@@ -174,6 +174,8 @@ async def change_own_data(background_tasks: BackgroundTasks,new_data: UpdateOwnA
             if prev_value != new_value:
                 message_text += f"{field_name}:\n{prev_value} => {new_value}\n"
                 has_changes = True
+            else:
+                message_text += f"{field_name}: {db_admin.last_name}\n"
 
         add_change("email", prev_data.email, db_admin.email)
         add_change("username", prev_data.username, f"@{db_admin.username}")
@@ -183,11 +185,11 @@ async def change_own_data(background_tasks: BackgroundTasks,new_data: UpdateOwnA
         add_change("ID канала", prev_data.channel_id, db_admin.channel_id)
 
         # If no changes, just display the data without any indication of change
-        if not has_changes:
-            message_text += (
-                f'Номер Админа: {db_admin.id}\n'
-                f'ID tg: {db_admin.tg_id}\n'
-            )
+        # if not has_changes:
+        #     message_text += (
+        #         f'Номер Админа: {db_admin.id}\n'
+        #         f'ID tg: {db_admin.tg_id}\n'
+        #     )
 
         btns = types.InlineKeyboardMarkup()
         close_msg_button = types.InlineKeyboardButton("Скрыть", callback_data=f"close_msg")
