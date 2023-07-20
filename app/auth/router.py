@@ -168,6 +168,10 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         def add_change(field_name, prev_value, new_value):
             nonlocal message_text
             if prev_value != new_value:
+                if prev_value is None:
+                    prev_value = ""
+                if new_value is None:
+                    new_value = ""
                 message_text += f"{field_name}:\n{prev_value} => {new_value}\n"
             else:
                 message_text += f"{field_name}: {new_value}\n"
@@ -192,6 +196,7 @@ async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwn
         await bot.send_message(chat_id=current_user.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
         for superuser in super_users:
             await bot.send_message(chat_id=superuser.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
+
 
     background_tasks.add_task(send_message_task)
 
