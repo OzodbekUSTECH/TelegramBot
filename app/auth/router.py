@@ -136,11 +136,13 @@ async def get_admin_by_id(admin_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/update/own/data", response_model=UpdateOwnDataResponse)
-async def change_own_data(background_tasks: BackgroundTasks,new_data: UpdateOwnAdminSchema, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+async def change_own_data(background_tasks: BackgroundTasks, new_data: UpdateOwnAdminSchema, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     db_admin = db.query(models.Admin).filter(models.Admin.id == current_user.id).first()
     if not db_admin:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You are not an admin")
     prev_data = db_admin
+
+    # Apply the updates to the db_admin object
     if new_data.email is not None:
         db_admin.email = new_data.email
     if new_data.username is not None:
@@ -160,41 +162,33 @@ async def change_own_data(background_tasks: BackgroundTasks,new_data: UpdateOwnA
     super_users = db.query(models.Admin).filter(models.Admin.is_superuser == True, models.Admin.tg_id != current_user.tg_id).all()
 
     async def send_message_task():
-        
-        message_text = (
-            "Данные были изменены:\n\n"
-            f'Номер Админа: {db_admin.id}\n'
-            f'ID tg: {db_admin.tg_id}\n'
-            )
-        has_changes = False  # Variable to track if there are any changes
-        
+        message_text = "Данные были изменены:\n\n"
+
         # Helper function to check if a field is updated and add it to the message_text
         def add_change(field_name, prev_value, new_value):
-            nonlocal message_text, has_changes
+            nonlocal message_text
             if prev_value != new_value:
                 message_text += f"{field_name}:\n{prev_value} => {new_value}\n"
-                has_changes = True
             else:
-                message_text += f"{field_name}: {db_admin.last_name}\n"
+                message_text += f"{field_name}: {new_value}\n"
 
-        add_change("email", prev_data.email, db_admin.email)
-        add_change("username", prev_data.username, f"@{db_admin.username}")
+        add_change("Номер Админа", prev_data.id, db_admin.id)
+        add_change("ID tg", prev_data.tg_id, db_admin.tg_id)
+        add_change("Email", prev_data.email, db_admin.email)
+        add_change("Username", prev_data.username, f"@{db_admin.username}")
         add_change("Имя", prev_data.first_name, db_admin.first_name)
         add_change("Фамилия", prev_data.last_name, db_admin.last_name)
         add_change("Номер телефона", prev_data.phone_number, db_admin.phone_number)
         add_change("ID канала", prev_data.channel_id, db_admin.channel_id)
 
-        # If no changes, just display the data without any indication of change
-        # if not has_changes:
-        #     message_text += (
-        #         f'Номер Админа: {db_admin.id}\n'
-        #         f'ID tg: {db_admin.tg_id}\n'
-        #     )
+        # If no changes, display a message indicating there were no changes
+        if message_text == "Данные были изменены:\n\n":
+            message_text += "Изменений нет.\n"
 
         btns = types.InlineKeyboardMarkup()
         close_msg_button = types.InlineKeyboardButton("Скрыть", callback_data=f"close_msg")
         btns.add(close_msg_button)
-        
+
         await bot.send_message(chat_id=current_user.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
         for superuser in super_users:
             await bot.send_message(chat_id=superuser.tg_id, text=message_text, reply_markup=btns, parse_mode="HTML")
