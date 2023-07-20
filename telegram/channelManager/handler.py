@@ -80,6 +80,7 @@ async def get_own_channel_statistics(callback_query: types.CallbackQuery):
         message_text = (
             "Не получается получить данные канала...\n"
             "*Введите правильное ID канала*\n\n"
+            f"*Добавьте бота в канала и дайте ему все права администратора!\n\n"
             "Это можно сделать через <a href='https://t.me/getidsbot'>@getidsbot</a>\n\n"
             "<b>ИНСТРУКЦИЯ:</b>\n"
             f"{GETIDSBOT_INSTRUCTION}"

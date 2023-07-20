@@ -231,11 +231,7 @@ async def pagination_list_of_channels(callback_query: types.CallbackQuery, state
         channel = all_channels[curr_page]
 
         enter_channel_link = await get_channel_link(channel.channel_id)
-        print(enter_channel_link)
-        print(enter_channel_link)
-        print(enter_channel_link)
-        print(enter_channel_link)
-        print(enter_channel_link)
+       
 
         active_subs_of_channel = db.query(models.User).filter(models.User.has_banned == False, models.User.admin == channel).all()
         banned_subs_of_channel = db.query(models.User).filter(models.User.has_banned == True, models.User.admin == channel).all()
@@ -244,7 +240,7 @@ async def pagination_list_of_channels(callback_query: types.CallbackQuery, state
         if enter_channel_link is None:
             message_text = (
                 "Не получается получить данные канала...\n\n"
-                "Причина: \n"
+                "Причины: \n"
                 "- Введено неправильно ID канала!\n"
                 "- Админ не добавил бота в канал!\n"
                 "- Не дал доступ администратора боту!\n\n"

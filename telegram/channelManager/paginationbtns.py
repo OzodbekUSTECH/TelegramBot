@@ -25,7 +25,7 @@ def get_list_of_all_channels_statistics(curr_page, all_channels, channel = None,
     nextbtn = types.InlineKeyboardButton(text="➡️", callback_data="next_channel")
     if channel is not None and link_channel is not None:
         kb.add(closemsg, channel_link).add(backbtn, counter_text, nextbtn)
-    elif link_channel is None:
+    elif link_channel is None and channel is not None:
 
         change_channel_id = types.InlineKeyboardButton(
             text="Изменить",
