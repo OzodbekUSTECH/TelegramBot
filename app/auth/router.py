@@ -152,7 +152,7 @@ async def change_own_data(background_tasks: BackgroundTasks,new_data = UpdateOwn
     if new_data.phone_number is not None:
         db_admin.phone_number = new_data.phone_number
     if new_data.channel_id is not None:
-        db_admin.channel_id == new_data.channel_id
+        db_admin.channel_id = new_data.channel_id
 
     db.commit()
     db.refresh(db_admin)
