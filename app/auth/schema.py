@@ -61,7 +61,7 @@ class UpdateOwnAdminSchema(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone_number: Optional[str] = None
-    channel_id: Optional[str] = None
+    channel_id: Optional[int] = None
 
     class Config:
         orm_mode = True
